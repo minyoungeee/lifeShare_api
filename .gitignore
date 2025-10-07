@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Firebase
+src/main/resources/lifeshare-a5002-firebase-adminsdk-fbsvc-ce64a6863f.json
