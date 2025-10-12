@@ -25,18 +25,56 @@ repositories {
 }
 
 dependencies {
-//	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+
+	// --- Spring Boot 기본 ---
+	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	// --- Thymeleaf Security Extras ---
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+	// --- Lombok ---
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// --- JSON/Jackson ---
+	implementation platform('com.fasterxml.jackson:jackson-bom:2.17.2')
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'com.fasterxml.jackson.core:jackson-core'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	// --- Servlet API (Jakarta 6) ---
+	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+	// --- Database: MyBatis + MySQL ---
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+	implementation 'com.mysql:mysql-connector-j:8.4.0'
+
+	// --- Firebase ---
+	implementation 'com.google.firebase:firebase-admin:9.3.0'
+
+	// --- Encryption ---
+	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+
+	// --- NAVER Lucy XSS Filter ---
+	implementation 'com.navercorp.lucy:lucy-xss-servlet:2.0.1'
+
+	// --- JWT ---
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// --- Swagger (Spring Boot 3 호환용) ---
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+	// --- Test ---
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	implementation 'com.google.firebase:firebase-admin:9.3.0'
 }
 
 tasks.named('test') {

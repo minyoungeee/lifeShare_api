@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.lifeshare.api.user.mapper.UserMapper">
+
+    <!--유저 기본 정보 조회-->
+    <select id="selectOneUserInfo" resultType="com.example.lifeshare.api.user.model.UserDto" parameterType="com.example.lifeshare.api.user.model.UserDto">
+        SELECT
+            admin_id,
+            admin_nm,
+            admin_pw,
+            latly_login_dt,
+            use_yn
+        FROM lf_admin
+         WHERE admin_id = #{adminId}
+        <if test="adminPw != null">
+            AND admin_pw = #{adminPw}
+        </if>
+    </select>
+
+    <!--유저 추가-->
+    <insert id="insertUser" parameterType="com.example.lifeshare.api.user.model.UserDto">
+        INSERT INTO lf_admin
+            (
+             <trim suffixOverrides=",">
+                 admin_id,
+                 admin_pw,
+                 admin_nm,
+                 use_yn,
+            </trim>
+            )VALUES(
+            <trim suffixOverrides=",">
+                #{adminId},
+                <![CDATA[#{adminPw}]]>,
+                #{adminNm},
+                "Y"
+            </trim>
+            )
+    </insert>
+
+    <!-- 아이디 중복체크 -->
+    <select id="selectOneUserIdDuplCheck" resultType="int" parameterType="String">
+        SELECT
+                COUNT(*)
+        FROM    public."TN_SVC_USER"
+        WHERE   "USER_ID" = #{userId}
+    </select>
+
+    <!-- 유저 이메일 중복체크 -->
+    <select id="selectOneUserEmailDuplCheck" resultType="int" parameterType="String">
+        SELECT
+                COUNT(*)
+        FROM    public."TN_SVC_USER"
+        WHERE   "EMAIL" = #{email}
+    </select>
+
+    <!-- 로그인 시간 업데이트 -->
+    <update id="updateUserLoginDt" parameterType="String">
+		update	lf_admin
+		set		latly_login_dt = now()
+		where	admin_id = #{_parameter}
+	</update>
+
+    <!-- 로그아웃 시간 업데이트 -->
+    <update id="updateUserLogoutDt" parameterType="String">
+        UPDATE TN_SVC_USER
+        SET LOGOUT_DT = NOW()
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <!-- 비밀번호 초기화 -->
+    <update id="updateUserPwdReset" parameterType="com.example.lifeshare.api.user.model.UserDto">
+		update	public."TN_SVC_USER"
+		set		"PWD" = <![CDATA[#{newPwd}]]>,
+		        "PWD_RESET_STTUS" = 'N',
+		        "PWD_RESET_DT" = now()
+		where	"USER_ID" = #{userId}
+        and     "PWD_RESET_STTUS" = 'R'
+	</update>
+
+    <!-- 비밀번호 변경 -->
+    <update id="updateUserPwd" parameterType="com.example.lifeshare.api.user.model.UserDto">
+		update	public."TN_SVC_USER"
+		set		"PWD" = <![CDATA[#{newPwd}]]>,
+		        "PWD_RESET_DT" = now()
+		where	"USER_ID" = #{userId}
+	</update>
+
+    <!-- 유저 목록 개수 조회  -->
+    <select id="selectOneUserCnt" parameterType="com.example.lifeshare.api.user.model.UserListReqDto" resultType="int">
+        select
+        COUNT(*) AS CNT
+        from public."TN_SVC_USER"
+        where 1=1
+            <if test="registDt != null">
+                and "REGIST_DT" = #{registDt}::timestamp
+            </if>
+            <if test="loginDt != null">
+                and "LOGIN_DT" = #{loginDt}::timestamp
+            </if>
+            <if test="search != null">
+                AND ("USER_ID" LIKE CONCAT('%', #{search}, '%') OR "USER_NM" LIKE CONCAT('%', #{search}, '%'))
+            </if>
+    </select>
+
+    <!-- 유저 목록 정보 조회  -->
+    <select id="selectListUser" parameterType="com.example.lifeshare.api.user.model.UserListReqDto" resultType="com.example.lifeshare.api.user.model.UserDto">
+        select
+            "USER_ID",
+            "USER_NM",
+            "USE_YN",
+            "EMAIL",
+            "LOGIN_DT",
+            "REGIST_DT",
+            "PWD_RESET_STTUS",
+        from public."TN_SVC_USER"
+        where 1=1
+            <if test="registDt != null">
+                AND TO_CHAR("REGIST_DT", 'YYYY-MM-DD') = #{registDt}
+            </if>
+            <if test="loginDt != null">
+                AND TO_CHAR("LOGIN_DT", 'YYYY-MM-DD') = #{loginDt}
+            </if>
+            <if test="search != null">
+                AND ("USER_ID" LIKE CONCAT('%', #{search}, '%') OR "USER_NM" LIKE CONCAT('%', #{search}, '%'))
+            </if>
+        order by
+        <choose>
+            <when test="order == 0">
+                "USER_ID"
+            </when>
+            <when test="order == 1">
+                "USER_NM"
+            </when>
+            <when test="order == 4">
+                "EMAIL"
+            </when>
+            <when test="order == 5">
+                "REGIST_DT"
+            </when>
+            <when test="order == 6">
+                "LOGIN_DT"
+            </when>
+            <when test="order == 8">
+                "PWD_RESET_STTUS"
+            </when>
+            <otherwise>
+                "USER_ID"
+            </otherwise>
+        </choose>
+        <if test="limit != 0 or startIdx != 0">
+            limit #{limit} offset #{startIdx}
+        </if>
+    </select>
+
+    <!-- 비밀번호 변경일자 체크 -->
+    <select id="selectOneUserPwdResetDate" parameterType="String" resultType="int">
+		select date_part('day', current_date::timestamp - "PWD_RESET_DT")
+        from "TN_SVC_USER"
+        where "USER_ID" = #{userId}
+        and "APPLVL_YN" = 'Y'
+	</select>
+
+    <!-- 유저정보 수정 -->
+    <update id="updateUserInfo" parameterType="com.example.lifeshare.api.user.model.UserDto">
+        update public."TN_SVC_USER"
+        <set>
+            <if test="userId != null">
+                "USER_ID" = #{userId},
+            </if>
+            <if test="userNm != null">
+                "USER_NM" = #{userNm},
+            </if>
+            <if test="email != null">
+                "EMAIL" = #{email},
+            </if>
+            "UPDT_ID" = #{updtId},
+            "UPDT_DT" = now()
+        </set>
+        where "USER_ID" = #{userId}
+    </update>
+
+    <!-- 비밀번호 초기화 상태 요청 -->
+    <update id="updateUserPwdReq" parameterType="com.example.lifeshare.api.user.model.UserDto">
+        update	public."TN_SVC_USER"
+        set		"PWD_RESET_STTUS" = 'W'
+        where	"USER_ID" = #{userId}
+    </update>
+
+    <!-- 비밀번호 초기화 상태 승인 -->
+    <update id="updateUserPwdAprv" parameterType="com.example.lifeshare.api.user.model.UserDto">
+        update	public."TN_SVC_USER"
+        set		"PWD_RESET_STTUS" = 'R'
+        where	"USER_ID" = #{userId}
+    </update>
+
+    <!-- 유저 삭제-->
+    <delete id="deleteUserList" parameterType="resultList">
+        delete
+        from public."TN_SVC_USER"
+        where "USER_ID" in
+        <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+            #{userId}
+        </foreach>
+    </delete>
+
+    <!-- 유저 아이디 정보 조회 -->
+    <select id="selectOneUserId" parameterType="com.example.lifeshare.api.user.model.UserDto" resultType="com.example.lifeshare.api.user.model.UserDto">
+        select
+            "USER_ID",
+            "USER_NM",
+            "PWD_RESET_STTUS"
+        from public."TN_SVC_USER"
+        where "USER_NM" = #{userNm}
+        and "EMAIL" = #{email}
+    </select>
+
+</mapper>

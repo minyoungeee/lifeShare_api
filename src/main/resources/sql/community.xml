@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.lifeshare.api.community.mapper.CommunityMapper">
+
+    <!-- 공지사항 목록 조회 -->
+    <select id="selectListCommunity" parameterType="com.example.lifeshare.api.community.model.CommunityDto"
+            resultType="com.example.lifeshare.api.community.model.CommunityDto">
+        SELECT
+            board_id,
+            title,
+            cont,
+            reg_dt,
+            ctgr_id
+        FROM lf_board_list
+        <if test="ctgrId != null">
+            where ctgr_id = #{ctgrId}
+        </if>
+        ORDER BY lf_board_list.reg_dt DESC
+        <if test="limit != 0 or startIdx != 0">
+            limit #{limit} offset #{startIdx}
+        </if>
+    </select>
+
+    <!-- 공지사항 목록 갯수 조회 -->
+    <select id="selectOneCommunityCnt" parameterType="int" resultType="int">
+        SELECT COUNT(*)
+        FROM lf_board_list
+        WHERE ctgr_id = #{ctgrId}
+    </select>
+
+    <!-- 공지사항 정보 수정 -->
+    <update id="reqPutCommunityInfo" parameterType="com.example.lifeshare.api.community.model.CommunityDto">
+        UPDATE  lf_board_list
+
+        <trim prefix="SET" suffixOverrides=",">
+
+            <if test="title != null">
+                title = #{title},
+            </if>
+
+            <if test="cont != null">
+                cont = #{cont},
+            </if>
+
+        </trim>
+
+        WHERE  board_id = #{boardId}
+    </update>
+
+    <!-- 공지사항 정보 등록 -->
+    <insert id="insertCommunityInfo" parameterType="com.example.lifeshare.api.community.model.CommunityDto" useGeneratedKeys="true" keyProperty="boardId">
+        INSERT INTO lf_board_list
+        (
+        title,
+        cont,
+        ctgr_id,
+        reg_dt
+        )
+        VALUES (
+        #{title},
+        #{cont},
+        '1',
+
+        NOW()
+        )
+    </insert>
+
+    <!-- 공지사항 정보 삭제 -->
+    <delete id="reqDeleteCommunityInfo">
+        DELETE FROM lf_board_list
+        where board_id IN
+        <foreach collection="communityIdList" item="boardId" separator="," open="(" close=")">
+            #{boardId}
+        </foreach>
+    </delete>
+
+    <!-- 공지사항 파일 정보 삭제 -->
+    <delete id="reqDeleteCommunityFileInfo">
+        DELETE FROM lf_file_list
+        where type_nm = 'community'
+            and targ_id IN
+        <foreach collection="communityIdList" item="boardId" separator="," open="(" close=")">
+            #{boardId}
+        </foreach>
+    </delete>
+
+</mapper>

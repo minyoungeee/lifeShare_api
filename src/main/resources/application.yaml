@@ -1,0 +1,40 @@
+server:
+  port: 8989
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  tomcat:
+    uri-encoding: UTF-8
+  session:
+    timeout: 300
+
+jwt:
+  secret : tnTjIg4UtqzYVMtRg99Z542Vq/WxxpEqsWZd2xctwvUihFVyl6i/kK7wSMGWsjlUezqHCkDFVGapzpG/MmBC4w==
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/lifeshare?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: root1234
+
+  mybatis:
+    mapper-locations: classpath:mapper/**/*.xml
+    type-aliases-package: com.example.lifeshare.api.**.model
+    configuration:
+      map-underscore-to-camel-case: true
+      cache-enabled: false
+
+
+file:
+  community-path: /Users/zerouriban/project/lifeShare_api/src/main/java/com/example/lifeshare/upload/file
+
+keySet:
+  key1: dGVzdC1wcml2YXRlLWtleS0xMjM0NTY=
+  key2: dGVzdC1wdWJsaWMta2V5LTEyMzQ1Ng==
+
+mybatis:
+  type-aliases-package=com.web.ns_mng_api.api

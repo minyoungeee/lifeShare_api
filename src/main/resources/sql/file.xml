@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.lifeshare.api.file.mapper.FileMapper">
+
+    <!-- 파일 목록 조회 -->
+    <select id="reqGetFileList" parameterType="com.example.lifeshare.api.file.model.FileDto" resultType="com.example.lifeshare.api.file.model.FileDto">
+        SELECT
+        file_id,
+        targ_id,
+        type_nm,
+        file_nm,
+        real_file_nm,
+        file_path,
+        ext,
+        video_yn,
+        reg_dt
+        FROM    lf_file_list
+        WHERE   1=1
+        <if test="targId != null">
+            AND targ_id = #{targId}
+        </if>
+        <if test="videoYn != null">
+            AND video_yn = #{videoYn}
+        </if>
+        <if test="typeNm != null">
+            AND type_nm = #{typeNm}
+        </if>
+    </select>
+
+    <!-- 파일 정보 조회 -->
+    <select id="reqGetFileInfo" parameterType="com.example.lifeshare.api.file.model.FileDto" resultType="com.example.lifeshare.api.file.model.FileDto">
+        SELECT
+            file_id,
+            targ_id,
+            type_nm,
+            file_nm,
+            real_file_nm,
+            file_path,
+            ext,
+            video_yn,
+            reg_dt
+        FROM    lf_file_list
+        WHERE   file_id = #{fileId}
+    </select>
+
+    <!-- 파일 정보 등록 -->
+    <insert id="reqPostFileInfo" parameterType="com.example.lifeshare.api.file.model.FileDto" useGeneratedKeys="true" keyProperty="fileId">
+        INSERT INTO lf_file_list
+        (
+            targ_id,
+            type_nm,
+            file_nm,
+            real_file_nm,
+            file_path,
+            ext,
+            video_yn,
+            reg_dt
+        )
+        VALUES (
+                   #{targId},
+                   #{typeNm},
+                   #{fileNm},
+                   #{realFileNm},
+                   #{filePath},
+                   #{ext},
+                   #{videoYn},
+                   NOW()
+               )
+    </insert>
+
+    <!-- 첨부파일 조회 -->
+    <select id="selectOneFileInfo" parameterType="String" resultType="com.example.lifeshare.api.file.model.FileDto">
+        SELECT
+            file_id,
+            targ_id,
+            type_nm,
+            file_nm,
+            real_file_nm,
+            file_path,
+            ext,
+            video_yn,
+            reg_dt
+        FROM
+            lf_file_list
+        WHERE  file_id = #{fileId}
+    </select>
+
+    <!-- 첨부파일 삭제 -->
+    <delete id="deleteFileInfo" parameterType="String">
+        DELETE
+        FROM lf_file_list
+        WHERE file_id = #{fileId}
+    </delete>
+</mapper>
